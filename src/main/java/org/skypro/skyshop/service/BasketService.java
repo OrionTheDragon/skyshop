@@ -3,6 +3,7 @@ package org.skypro.skyshop.service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.skypro.skyshop.exception.NoSuchProductException;
 import org.skypro.skyshop.model.basket.BasketItem;
 import org.skypro.skyshop.model.basket.ProductBasket;
 import org.skypro.skyshop.model.basket.UserBasket;
@@ -22,7 +23,7 @@ public class BasketService {
     }
 
     public void addProduct(UUID id) {
-        storageService.getProductById(id).orElseThrow(IllegalArgumentException::new);
+        storageService.getProductById(id).orElseThrow(NoSuchProductException::new);
         productBasket.addProduct(id);
     }
 
@@ -30,7 +31,7 @@ public class BasketService {
         List<BasketItem> items = productBasket.getProducts().entrySet().stream()
                 .map(entry -> new BasketItem(
                         storageService.getProductById(entry.getKey())
-                                .orElseThrow(IllegalArgumentException::new),
+                                .orElseThrow(NoSuchProductException::new),
                         entry.getValue()
                 ))
                 .collect(Collectors.toList());
