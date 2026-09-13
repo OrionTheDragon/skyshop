@@ -1,5 +1,6 @@
 package org.skypro.skyshop;
 
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.skypro.skyshop.model.product.Product;
 import org.skypro.skyshop.service.StorageService;
@@ -86,5 +87,13 @@ class SkyshopApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items", hasSize(0)))
                 .andExpect(jsonPath("$.total").value(0));
+    }
+
+    @Test
+    void missingProductReturnsStructuredNotFoundError() throws Exception {
+        mockMvc.perform(get("/basket/{id}", UUID.randomUUID()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PRODUCT_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Товар не найден"));
     }
 }
