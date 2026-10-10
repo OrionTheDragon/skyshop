@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
@@ -49,7 +49,7 @@ class StudentServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.findStudent(1L))
-                .isInstanceOf(EntityNotFoundException.class)
+                .isInstanceOf(StudentNotFoundException.class)
                 .hasMessageContaining("1");
     }
 
@@ -101,7 +101,7 @@ class StudentServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.editStudent(updated))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(StudentNotFoundException.class);
         verify(repository, never()).save(updated);
     }
 
@@ -120,7 +120,7 @@ class StudentServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.deleteStudent(1L))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(StudentNotFoundException.class);
         verify(repository, never()).deleteById(1L);
     }
 }

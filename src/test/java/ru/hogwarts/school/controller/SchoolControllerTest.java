@@ -3,6 +3,7 @@ package ru.hogwarts.school.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -130,6 +132,22 @@ class SchoolControllerTest {
     @ValueSource(strings = {"student", "faculty"})
     void emptyStorageReturnsEmptyJsonArray(String path) throws Exception {
         mvc.perform(get("/" + path)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"student", "faculty"})
+    void adviceReturnsNotFoundMessageAsJson(String path) throws Exception {
+        String entity = path.equals("student") ? "Student" : "Faculty";
+        mvc.perform(get("/" + path + "/" + Long.MAX_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(entity + " with id " + Long.MAX_VALUE + " not found"));
+    }
+
+    @Test
+    void testControllerConfirmsSchoolIsRunning() throws Exception {
+        mvc.perform(get("/test"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("School application is running"));
     }
 
     private ObjectNode body(String name, String field, Object value) {

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
@@ -49,7 +49,7 @@ class FacultyServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.findFaculty(1L))
-                .isInstanceOf(EntityNotFoundException.class)
+                .isInstanceOf(FacultyNotFoundException.class)
                 .hasMessageContaining("1");
     }
 
@@ -101,7 +101,7 @@ class FacultyServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.editFaculty(updated))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(FacultyNotFoundException.class);
         verify(repository, never()).save(updated);
     }
 
@@ -120,7 +120,7 @@ class FacultyServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.deleteFaculty(1L))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(FacultyNotFoundException.class);
         verify(repository, never()).deleteById(1L);
     }
 }

@@ -3,7 +3,7 @@ package ru.hogwarts.school.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
@@ -27,7 +27,7 @@ public class FacultyService {
 
     public Faculty findFaculty(Long id) {
         return facultyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Faculty", id));
+                .orElseThrow(() -> new FacultyNotFoundException(id));
     }
 
     public List<Faculty> getAllFaculties() {

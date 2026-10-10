@@ -3,7 +3,7 @@ package ru.hogwarts.school.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
@@ -27,7 +27,7 @@ public class StudentService {
 
     public Student findStudent(Long id) {
         return studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student", id));
+                .orElseThrow(() -> new StudentNotFoundException(id));
     }
 
     public List<Student> getAllStudents() {
