@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
@@ -38,8 +39,21 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<Student> getStudents(@RequestParam(required = false) Integer age) {
+    public List<Student> getStudents(@RequestParam(required = false) Integer age,
+                                    @RequestParam(required = false) Integer min,
+                                    @RequestParam(required = false) Integer max) {
+        if (min != null || max != null) {
+            if (min == null || max == null || age != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Use min and max together without age");
+            }
+            return studentService.findStudentsByAgeBetween(min, max);
+        }
         return age == null ? studentService.getAllStudents() : studentService.findStudentsByAge(age);
+    }
+
+    @GetMapping("/{id}/faculty")
+    public Faculty getStudentFaculty(@PathVariable Long id) {
+        return studentService.getStudentFaculty(id);
     }
 
     @PutMapping
