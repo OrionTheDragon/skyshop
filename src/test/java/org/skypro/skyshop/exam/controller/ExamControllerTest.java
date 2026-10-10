@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.skypro.skyshop.exam.model.Question;
 import org.skypro.skyshop.exam.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class ExamControllerTest {
     @Autowired
     private MockMvc mockMvc;
