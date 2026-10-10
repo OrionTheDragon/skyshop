@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.List;
@@ -22,6 +23,8 @@ import static org.mockito.Mockito.when;
 class StudentServiceTest {
     @Mock
     private StudentRepository repository;
+    @Mock
+    private FacultyRepository facultyRepository;
     @InjectMocks
     private StudentService service;
 
@@ -76,6 +79,15 @@ class StudentServiceTest {
         when(repository.findByAge(12)).thenReturn(List.of());
 
         assertThat(service.findStudentsByAge(12)).isEmpty();
+    }
+
+    @Test
+    void rangeFilterUsesDerivedRepositoryQuery() {
+        Student entity = new Student("Harry", 11);
+        when(repository.findByAgeBetween(10, 20)).thenReturn(List.of(entity));
+
+        assertThat(service.findStudentsByAgeBetween(10, 20)).containsExactly(entity);
+        verify(repository).findByAgeBetween(10, 20);
     }
 
     @Test

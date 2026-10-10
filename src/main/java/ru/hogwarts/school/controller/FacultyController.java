@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
@@ -38,8 +39,17 @@ public class FacultyController {
     }
 
     @GetMapping
-    public List<Faculty> getFaculties(@RequestParam(required = false) String color) {
+    public List<Faculty> getFaculties(@RequestParam(required = false) String color,
+                                    @RequestParam(required = false) String pattern) {
+        if (pattern != null) {
+            return facultyService.findFacultiesByNameOrColor(pattern);
+        }
         return color == null ? facultyService.getAllFaculties() : facultyService.findFacultiesByColor(color);
+    }
+
+    @GetMapping("/{id}/students")
+    public List<Student> getFacultyStudents(@PathVariable Long id) {
+        return facultyService.getFacultyStudents(id);
     }
 
     @PutMapping

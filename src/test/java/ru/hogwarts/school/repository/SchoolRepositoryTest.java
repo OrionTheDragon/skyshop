@@ -79,4 +79,50 @@ class SchoolRepositoryTest {
                 .extracting(Faculty::getId).containsExactly(gryffindor.getId());
         assertThat(facultyRepository.findByColorIgnoreCase("Blue")).isEmpty();
     }
+
+    @Test
+    void ageRangeQueryIncludesItsBoundaries() {
+        Student lower = studentRepository.save(new Student("Harry", 10));
+        Student upper = studentRepository.save(new Student("Hermione", 20));
+        studentRepository.save(new Student("Younger", 9));
+        studentRepository.save(new Student("Older", 21));
+        studentRepository.flush();
+        entityManager.clear();
+
+        assertThat(studentRepository.findByAgeBetween(10, 20))
+                .extracting(Student::getId).containsExactlyInAnyOrder(lower.getId(), upper.getId());
+        assertThat(studentRepository.findByAgeBetween(20, 20))
+                .extracting(Student::getId).containsExactly(upper.getId());
+        assertThat(studentRepository.findByAgeBetween(30, 40)).isEmpty();
+    }
+
+    @Test
+    void facultyNameOrColorQueryMatchesSubstringsIgnoringCaseWithoutDuplicates() {
+        Faculty colorMatch = facultyRepository.save(new Faculty("Gryffindor", "Red"));
+        Faculty bothMatch = facultyRepository.save(new Faculty("Red House", "RED"));
+        facultyRepository.save(new Faculty("Slytherin", "Green"));
+        facultyRepository.flush();
+        entityManager.clear();
+
+        assertThat(facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase("rEd", "rEd"))
+                .extracting(Faculty::getId).containsExactlyInAnyOrder(colorMatch.getId(), bothMatch.getId());
+        assertThat(facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase("FFIN", "FFIN"))
+                .extracting(Faculty::getId).containsExactly(colorMatch.getId());
+        assertThat(facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase("unknown", "unknown"))
+                .isEmpty();
+    }
+
+    @Test
+    void facultyRelationshipSurvivesClearingPersistenceContext() {
+        Faculty faculty = facultyRepository.save(new Faculty("Gryffindor", "Red"));
+        Student student = new Student("Harry", 11);
+        student.setFaculty(faculty);
+        studentRepository.saveAndFlush(student);
+        entityManager.clear();
+
+        assertThat(studentRepository.findById(student.getId()).orElseThrow().getFaculty().getId())
+                .isEqualTo(faculty.getId());
+        assertThat(facultyRepository.findById(faculty.getId()).orElseThrow().getStudents())
+                .extracting(Student::getId).containsExactly(student.getId());
+    }
 }
