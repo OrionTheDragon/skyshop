@@ -66,6 +66,14 @@ class StudentServiceTest {
     }
 
     @Test
+    void emptySchoolHasZeroAverageAge() {
+        when(repository.findAverageAge()).thenReturn(null);
+
+        assertThat(service.getAverageAge()).isZero();
+        verify(repository).findAverageAge();
+    }
+
+    @Test
     void filterUsesDerivedRepositoryQuery() {
         Student entity = new Student("Harry", 11);
         when(repository.findByAge(11)).thenReturn(List.of(entity));
