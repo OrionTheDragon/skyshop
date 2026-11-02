@@ -42,6 +42,19 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
+    public long getStudentCount() {
+        return studentRepository.countAllStudents();
+    }
+
+    public double getAverageAge() {
+        Double averageAge = studentRepository.findAverageAge();
+        return averageAge == null ? 0.0 : averageAge;
+    }
+
+    public List<Student> getLastFiveStudents() {
+        return studentRepository.findLastFiveStudents();
+    }
+
     public List<Student> findStudentsByAge(int age) {
         return studentRepository.findByAge(age);
     }
