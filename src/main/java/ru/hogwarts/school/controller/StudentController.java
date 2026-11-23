@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,28 +16,30 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @RestController
-@RequestMapping("/student")
 public class StudentController {
+    private static final String STUDENT_PATH = "/student";
+
     private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    @PostMapping
+    @PostMapping(STUDENT_PATH)
     @ResponseStatus(HttpStatus.CREATED)
     public Student addStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(STUDENT_PATH + "/{id}")
     public Student findStudent(@PathVariable Long id) {
         return studentService.findStudent(id);
     }
 
-    @GetMapping
+    @GetMapping(STUDENT_PATH)
     public List<Student> getStudents(@RequestParam(required = false) Integer age,
                                     @RequestParam(required = false) Integer min,
                                     @RequestParam(required = false) Integer max) {
@@ -51,37 +52,47 @@ public class StudentController {
         return age == null ? studentService.getAllStudents() : studentService.findStudentsByAge(age);
     }
 
-    @GetMapping("/count")
+    @GetMapping(STUDENT_PATH + "/count")
     public long getStudentCount() {
         return studentService.getStudentCount();
     }
 
-    @GetMapping("/average-age")
+    @GetMapping(STUDENT_PATH + "/average-age")
     public double getAverageAge() {
         return studentService.getAverageAge();
     }
 
-    @GetMapping("/names-starting-with-a")
+    @GetMapping(STUDENT_PATH + "/names-starting-with-a")
     public List<String> getNamesStartingWithA() {
         return studentService.getNamesStartingWithA();
     }
 
-    @GetMapping("/average-age-stream")
+    @GetMapping(STUDENT_PATH + "/average-age-stream")
     public double getAverageAgeUsingStream() {
         return studentService.getAverageAgeUsingStream();
     }
 
-    @GetMapping("/last-five")
+    @GetMapping(STUDENT_PATH + "/last-five")
     public List<Student> getLastFiveStudents() {
         return studentService.getLastFiveStudents();
     }
 
-    @GetMapping("/{id}/faculty")
+    @GetMapping(STUDENT_PATH + "/{id}/faculty")
     public Faculty getStudentFaculty(@PathVariable Long id) {
         return studentService.getStudentFaculty(id);
     }
 
-    @PutMapping
+    @GetMapping("/students/print-parallel")
+    public void printStudentsParallel() throws InterruptedException {
+        printFirstSixNames(System.out::println);
+    }
+
+    @GetMapping("/students/print-synchronized")
+    public void printStudentsSynchronized() throws InterruptedException {
+        printFirstSixNames(this::printName);
+    }
+
+    @PutMapping(STUDENT_PATH)
     public Student editStudent(@RequestBody Student student) {
         if (student.getId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student id is required");
@@ -89,9 +100,36 @@ public class StudentController {
         return studentService.editStudent(student);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(STUDENT_PATH + "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
+    }
+
+    private void printFirstSixNames(Consumer<String> printer) throws InterruptedException {
+        List<String> names = studentService.getAllStudents().stream()
+                .limit(6)
+                .map(Student::getName)
+                .toList();
+
+        Thread thirdAndFourth = new Thread(() -> printPair(names, 2, printer), "students-3-4");
+        Thread fifthAndSixth = new Thread(() -> printPair(names, 4, printer), "students-5-6");
+        thirdAndFourth.start();
+        fifthAndSixth.start();
+
+        printPair(names, 0, printer);
+        thirdAndFourth.join();
+        fifthAndSixth.join();
+    }
+
+    private static void printPair(List<String> names, int startIndex, Consumer<String> printer) {
+        int endIndex = Math.min(startIndex + 2, names.size());
+        for (int index = startIndex; index < endIndex; index++) {
+            printer.accept(names.get(index));
+        }
+    }
+
+    private synchronized void printName(String name) {
+        System.out.println(name);
     }
 }
