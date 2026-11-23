@@ -15,6 +15,7 @@ import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,6 +51,25 @@ public class StudentService {
     public List<Student> getAllStudents() {
         LOGGER.info("Was invoked method for getting all students");
         return studentRepository.findAll();
+    }
+
+    public List<String> getNamesStartingWithA() {
+        LOGGER.info("Was invoked method for finding student names starting with A");
+        return studentRepository.findAll().stream()
+                .map(Student::getName)
+                .filter(Objects::nonNull)
+                .map(String::toUpperCase)
+                .filter(name -> name.startsWith("A") || name.startsWith("А"))
+                .sorted()
+                .toList();
+    }
+
+    public double getAverageAgeUsingStream() {
+        LOGGER.info("Was invoked method for calculating the average student age using a stream");
+        return studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0);
     }
 
     public long getStudentCount() {

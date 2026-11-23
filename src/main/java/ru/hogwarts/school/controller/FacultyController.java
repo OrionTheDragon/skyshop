@@ -1,6 +1,7 @@
 package ru.hogwarts.school.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +51,11 @@ public class FacultyController {
     @GetMapping("/{id}/students")
     public List<Student> getFacultyStudents(@PathVariable Long id) {
         return facultyService.getFacultyStudents(id);
+    }
+
+    @GetMapping("/longest-name")
+    public ResponseEntity<String> getLongestFacultyName() {
+        return ResponseEntity.of(facultyService.getLongestFacultyName());
     }
 
     @PutMapping
